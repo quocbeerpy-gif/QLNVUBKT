@@ -79,6 +79,7 @@ main{min-width:0;display:flex;flex-direction:column}
 .icon-btn{position:relative;width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:var(--surface);display:grid;place-items:center;cursor:pointer}
 .icon-btn .dot{position:absolute;top:-5px;right:-5px;background:var(--over);color:#fff;font-size:10px;border-radius:99px;min-width:17px;height:17px;display:grid;place-items:center;padding:0 4px}
 #menuBtn{display:none}
+.pill{font-size:12px;font-weight:700;padding:4px 10px;border-radius:99px;background:color-mix(in srgb,var(--c,#64748b) 14%,transparent);color:var(--c,#64748b);white-space:nowrap}
 .page{padding:22px 26px 60px;max-width:1500px;width:100%}
 /* cards */
 .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:18px}
@@ -248,7 +249,7 @@ main{min-width:0;display:flex;flex-direction:column}
   <main>
     <header class="top">
       <button class="icon-btn" id="menuBtn" data-act="menu"><svg class="i"><use href="#i-menu"/></svg></button>
-      <h2 id="ptitle"></h2><div class="sp"></div>
+      <h2 id="ptitle"></h2><div class="sp"></div><span class="pill" id="syncPill"></span>
       <button class="icon-btn" data-act="theme" title="Giao diện sáng/tối"><svg class="i"><use href="#i-moon"/></svg></button>
       <button class="icon-btn" data-act="bell" title="Thông báo"><svg class="i"><use href="#i-bell"/></svg><span class="dot hide" id="bellDot"></span></button>
     </header>
@@ -279,6 +280,9 @@ main{min-width:0;display:flex;flex-direction:column}
 <symbol id="i-org" viewBox="0 0 24 24"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 9h.01M15 9h.01M9 13h.01M15 13h.01M10 21v-4h4v4"/></symbol>
 </defs></svg>
 
+<div id="boot" style="position:fixed;inset:0;background:var(--bg);z-index:300;display:grid;place-items:center;color:var(--muted);font-weight:600">Đang kết nối cơ sở dữ liệu…</div>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script>
 "use strict";
 /* ============ UTIL ============ */
@@ -406,24 +410,36 @@ function seedDB(){
 
 /* ============ STORE ============ */
 const KEY="pvhx_taskapp_v1", SKEY="pvhx_session_v1";
+const FB={ready:false,db:null,last:{users:{},tasks:{},notes:{},logs:{},settings:""},timer:null};
 let DB; try{DB=JSON.parse(localStorage.getItem(KEY)||"null")}catch(e){DB=null}
 if(!DB||!DB.users) DB=seedDB();
 const DEF_SET={orgName:"Phòng Văn hóa - Xã hội",appName:"Quản lý nhiệm vụ",logo:"VH",loginTitle:"Hệ thống giao nhiệm vụ & kiểm soát thực hiện công việc",
  loginDesc:"Giao việc theo phân công nhiệm vụ, theo dõi tiến độ, phê duyệt và đánh giá hiệu suất từng cá nhân.",
  feats:["📋 Giao việc theo lĩnh vực","⏱ Cảnh báo quá hạn tự động","✅ Duyệt & chấm điểm kết quả","📊 Dashboard & xếp loại KPI"],showAccounts:true};
-DB.settings=Object.assign({},DEF_SET,DB.settings||{});
-if(!DB.users.some(u=>u.role==="admin"))DB.users.unshift({id:"u_admin",name:"Quản trị hệ thống",username:"admin",role:"admin",title:"Quản trị viên",mandate:"Quản trị toàn bộ nội dung và dữ liệu hệ thống.",duties:[],pass:hash("admin"),active:true,phone:"",email:""});
-const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(DB))}catch(e){}};
-save();
-const S={me:null,route:"dashboard",period:"quarter",view:"list",fStatus:"",fPrio:"",fUser:"",q:"",calMonth:today().slice(0,7),teamView:"cards",perfUser:null,dropOpen:false,logQ:""};
+function ensureAdmin(){
+  if(!DB.users.some(u=>u.role==="admin")){DB.users.push({id:"u_admin",name:"Quản trị hệ thống",username:"admin",role:"admin",title:"Quản trị viên",mandate:"Quản trị toàn bộ nội dung và dữ liệu hệ thống.",duties:[],pass:hash("admin"),active:true,phone:"",email:"",ord:-1});return true}
+  return false;
+}
+function normalize(){
+  DB.settings=Object.assign({},DEF_SET,DB.settings||{});
+  DB.users.forEach((u,i)=>{if(u.ord===undefined)u.ord=u.role==="admin"?-1:i});
+  ensureAdmin();
+  DB.users.sort((a,b)=>a.ord-b.ord);
+  DB.logs.forEach(l=>{if(!l.id)l.id=uid()});DB.notes.forEach(n=>{if(!n.id)n.id=uid()});
+}
+normalize();
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(DB))}catch(e){}if(FB.ready)schedulePush()};
+const saveLocal=()=>{try{localStorage.setItem(KEY,JSON.stringify(DB))}catch(e){}};
+
+const S={dirty:false,me:null,route:"dashboard",period:"quarter",view:"list",fStatus:"",fPrio:"",fUser:"",q:"",calMonth:today().slice(0,7),teamView:"cards",perfUser:null,dropOpen:false,logQ:""};
 const U=id=>DB.users.find(u=>u.id===id);
 const T=id=>DB.tasks.find(t=>t.id===id);
-const isLead=u=>u&&(u.role==="head"||u.role==="deputy");
+const isLead=u=>u&&["head","deputy","admin"].includes(u.role);
 const isHead=u=>u&&(u.role==="head"||u.role==="admin");
 const isAdmin=u=>u&&u.role==="admin";
 const members=()=>DB.users.filter(u=>u.role!=="admin"&&u.active);
 const heads=()=>DB.users.filter(u=>u.role==="head").map(u=>u.id);
-const log=text=>{DB.logs.unshift({at:nowStr(),uid:S.me?.id||"",text});DB.logs=DB.logs.slice(0,400)};
+const log=text=>{DB.logs.unshift({id:uid(),at:nowStr(),uid:S.me?.id||"",text});DB.logs=DB.logs.slice(0,400)};
 const notify=(to,text,taskId)=>{[].concat(to).filter(x=>x&&x!==S.me?.id).forEach(id=>DB.notes.unshift({id:uid(),to:id,text,at:nowStr(),read:false,taskId}));DB.notes=DB.notes.slice(0,500)};
 const sys=(t,text)=>t.comments.push({id:uid(),uid:S.me.id,sys:true,text,at:nowStr()});
 
@@ -504,7 +520,7 @@ function modal(html,wide){
   root.innerHTML=`<div class="mask" data-act="maskclose"><div class="modal ${wide?"wide":""}">${html}</div></div>`;
   document.body.style.overflow="hidden";
 }
-function closeModal(){$("#modalRoot").innerHTML="";document.body.style.overflow=""}
+function closeModal(){$("#modalRoot").innerHTML="";document.body.style.overflow="";if(S.dirty){S.dirty=false;if(S.me)render()}}
 const mhead=(t,sub="")=>`<div class="m-h"><h3>${t}${sub}</h3><button class="btn ghost sm" data-act="closem">${icon("x")}</button></div>`;
 function confirmBox(msg,onOk,okLabel="Xác nhận"){
   modal(`${mhead("Xác nhận")}<div class="m-b">${msg}</div><div class="m-f"><button class="btn" data-act="closem">Hủy</button><button class="btn pri" id="cfOk">${okLabel}</button></div>`);
@@ -861,7 +877,7 @@ function userForm(id){
     const name=$("#uf_n").value.trim(),un=$("#uf_u").value.trim();if(!name||!un)return toast("Nhập họ tên và tên đăng nhập");
     if(DB.users.some(x=>x.id!==u?.id&&norm(x.username)===norm(un)))return toast("Tên đăng nhập đã tồn tại");
     const d={name,username:un,role:$("#uf_r").value,title:$("#uf_t").value.trim()||"Công chức",mandate:$("#uf_m").value.trim(),duties:$("#uf_d").value.split("\n").map(x=>x.trim()).filter(Boolean),phone:$("#uf_p").value.trim(),email:$("#uf_e").value.trim()};
-    if(u){Object.assign(u,d);log(`Sửa nhân sự ${name}`)}else{DB.users.push({id:"u_"+uid(),pass:hash(DEFAULT_PW),active:true,...d});log(`Thêm nhân sự ${name}`)}
+    if(u){Object.assign(u,d);log(`Sửa nhân sự ${name}`)}else{DB.users.push({id:"u_"+uid(),pass:hash(DEFAULT_PW),active:true,ord:Math.max(0,...DB.users.map(x=>x.ord||0))+1,...d});log(`Thêm nhân sự ${name}`)}
     save();closeModal();render();toast("Đã lưu")};
 }
 
@@ -995,7 +1011,7 @@ document.addEventListener("click",e=>{
     case"changepw":{const o=$("#pw0").value,n=$("#pw1").value;if(S.me.pass!==hash(o))return toast("Mật khẩu hiện tại không đúng");if(n.length<6)return toast("Mật khẩu mới tối thiểu 6 ký tự");if(n!==$("#pw2").value)return toast("Nhập lại mật khẩu không khớp");S.me.pass=hash(n);log("Đổi mật khẩu");save();toast("Đã đổi mật khẩu");render();break}
     case"backup":download(`backup-nhiemvu-${today()}.json`,JSON.stringify(DB),"application/json");break;
     case"clearTasks":confirmBox("Xóa toàn bộ nhiệm vụ để bắt đầu sử dụng thật?",()=>{DB.tasks=[];DB.notes=[];log("Xóa toàn bộ nhiệm vụ");save();render();toast("Đã xóa")},"Xóa hết");break;
-    case"resetAll":confirmBox("Đặt lại toàn bộ hệ thống về dữ liệu mẫu ban đầu (mật khẩu về 112233)?",()=>{DB=seedDB();save();logout();location.reload()},"Đặt lại");break;
+    case"resetAll":confirmBox("Đặt lại toàn bộ hệ thống về dữ liệu mẫu ban đầu (mật khẩu về 112233)?",()=>{DB=seedDB();normalize();save();flush().then(()=>{localStorage.removeItem(SKEY);location.reload()})},"Đặt lại");break;
   }
 });
 document.addEventListener("input",e=>{
@@ -1005,13 +1021,88 @@ document.addEventListener("input",e=>{
 document.addEventListener("change",e=>{
   const id=e.target.id;
   if(id==="fs"){S.fStatus=e.target.value;render()}if(id==="fp"){S.fPrio=e.target.value;render()}if(id==="fu"){S.fUser=e.target.value;render()}
-  if(id==="restoreF"){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(!d.users||!d.tasks)throw 0;DB=d;save();toast("Đã khôi phục");setTimeout(()=>location.reload(),600)}catch(x){toast("File sao lưu không hợp lệ")}};r.readAsText(f)}
+  if(id==="restoreF"){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(!d.users||!d.tasks)throw 0;DB=d;normalize();save();toast("Đã khôi phục");flush().then(()=>setTimeout(()=>location.reload(),400))}catch(x){toast("File sao lưu không hợp lệ")}};r.readAsText(f)}
 });
 document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal()});
 $("#loginForm").addEventListener("submit",login);
 window.addEventListener("hashchange",()=>{const r=location.hash.slice(1);if(S.me&&r&&r!==S.route&&TITLES[r]){S.route=r;render()}});
 
+/* ============ FIREBASE SYNC ============ */
+const FBCFG={apiKey:"AIzaSyAaUA_XL6ND1zq5gYyOJTcJFQ0_9XMnjl0",authDomain:"qlnvubkt.firebaseapp.com",projectId:"qlnvubkt",storageBucket:"qlnvubkt.firebasestorage.app",messagingSenderId:"150609873636",appId:"1:150609873636:web:551c2329facb5d33b9faf1",measurementId:"G-G9EX8SEW2J"};
+const js=x=>JSON.stringify(x);
+function setSync(st){
+  const m={on:["Đã đồng bộ","var(--done)"],conn:["Đang kết nối…","var(--warn)"],off:["Ngoại tuyến (lưu trên máy)","var(--muted)"],err:["Lỗi đồng bộ","var(--over)"],push:["Đang lưu…","var(--warn)"]}[st];
+  const e=$("#syncPill");if(e){e.textContent="● "+m[0];e.style.setProperty("--c",m[1])}FB.state=st;
+}
+function schedulePush(){clearTimeout(FB.timer);FB.timer=setTimeout(()=>pushDiff().catch(()=>{}),60)}
+function flush(){clearTimeout(FB.timer);return FB.ready?pushDiff().catch(()=>{}):Promise.resolve()}
+async function pushDiff(){
+  if(!FB.ready)return;
+  const ops=[],col=n=>FB.db.collection(n);
+  for(const c of ["users","tasks","notes","logs"]){
+    const cur={};DB[c].forEach(x=>cur[x.id]=x);
+    for(const id in cur){const t=js(cur[id]);if(FB.last[c][id]!==t){ops.push(["set",col(c).doc(id),JSON.parse(t)]);FB.last[c][id]=t}}
+    if(c==="users"||c==="tasks")for(const id in FB.last[c])if(!cur[id]){ops.push(["del",col(c).doc(id)]);delete FB.last[c][id]}
+  }
+  const st=js(DB.settings);if(FB.last.settings!==st){ops.push(["set",col("meta").doc("settings"),{data:JSON.parse(st)}]);FB.last.settings=st}
+  if(!ops.length)return;
+  setSync("push");
+  try{
+    for(let i=0;i<ops.length;i+=400){
+      const b=FB.db.batch();ops.slice(i,i+400).forEach(([k,r,d])=>k==="set"?b.set(r,d):b.delete(r));await b.commit();
+    }
+    setSync("on");
+  }catch(e){console.error(e);setSync("err");throw e}
+}
+function afterRemote(c){
+  if(c==="users"){
+    if(ensureAdmin()){saveLocal();schedulePush()}
+    if(S.me){const n=U(S.me.id);if(!n||!n.active){S.me=null;localStorage.removeItem(SKEY);showLogin();return}S.me=n}
+  }
+  saveLocal();
+  if(!$("#login").classList.contains("hide")){applySettings();$("#demoBox").classList.toggle("hide",!DB.settings.showAccounts);$("#demoChips").innerHTML=DB.users.filter(u=>u.role!=="admin").map(u=>`<button type="button" class="chip" data-act="fill" data-u="${esc(u.username)}">${esc(shortName(u.name))} · ${esc(u.username)}</button>`).join("");return}
+  if(!S.me)return;
+  if($("#modalRoot").innerHTML){S.dirty=true;return}
+  const ae=document.activeElement;if(ae&&ae.closest&&ae.closest("#page")&&/INPUT|TEXTAREA|SELECT/.test(ae.tagName)&&ae.id!=="fq")return;
+  render();if(S.dropOpen)renderDrop();
+}
+function connect(){
+  return new Promise(async resolve=>{
+    if(typeof firebase==="undefined"){setSync("off");return resolve()}
+    try{firebase.initializeApp(FBCFG);FB.db=firebase.firestore()}catch(e){console.error(e);setSync("off");return resolve()}
+    setSync("conn");
+    try{
+      const col=n=>FB.db.collection(n),initRef=col("meta").doc("init");
+      const init=await initRef.get();
+      if(!init.exists){FB.ready=true;await pushDiff();await initRef.set({at:Date.now()})}
+      FB.ready=true;
+      const need=new Set(["users","tasks","settings"]);
+      const mark=k=>{need.delete(k);if(!need.size)resolve()};
+      const err=e=>{console.error(e);setSync("err");resolve()};
+      const sortBy={users:(a,b)=>a.ord-b.ord,tasks:(a,b)=>a.code.localeCompare(b.code),notes:(a,b)=>b.at.localeCompare(a.at),logs:(a,b)=>b.at.localeCompare(a.at)};
+      const q={users:col("users"),tasks:col("tasks"),notes:col("notes").orderBy("at","desc").limit(500),logs:col("logs").orderBy("at","desc").limit(300)};
+      for(const c of ["users","tasks","notes","logs"]){
+        q[c].onSnapshot(snap=>{
+          const arr=snap.docs.map(d=>d.data()).sort(sortBy[c]);
+          FB.last[c]={};arr.forEach(x=>FB.last[c][x.id]=js(x));
+          DB[c]=arr;setSync("on");afterRemote(c);mark(c);
+        },err);
+      }
+      col("meta").doc("settings").onSnapshot(d=>{
+        if(d.exists){DB.settings=Object.assign({},DEF_SET,d.data().data);FB.last.settings=js(DB.settings);saveLocal();applySettings();if(S.me&&!$("#modalRoot").innerHTML)renderShell()}
+        mark("settings");
+      },err);
+    }catch(e){console.error(e);FB.ready=false;setSync("err");resolve()}
+  });
+}
+
 /* ============ BOOT ============ */
+function startApp(){
+  $("#boot").remove();
+  const sid=(()=>{try{return localStorage.getItem(SKEY)}catch(e){return null}})();
+  if(sid&&U(sid)&&U(sid).active){S.me=U(sid);boot()}else showLogin();
+  setSync(FB.state||"off");
+}
 function boot(){
   $("#login").classList.add("hide");$("#app").classList.remove("hide");
   const r=location.hash.slice(1);S.route=TITLES[r]?r:"dashboard";
@@ -1019,8 +1110,7 @@ function boot(){
   render();
 }
 try{const th=localStorage.getItem("pvhx_theme");if(th)document.documentElement.dataset.theme=th}catch(e){}
-const sid=(()=>{try{return localStorage.getItem(SKEY)}catch(e){return null}})();
-if(sid&&U(sid)&&U(sid).active){S.me=U(sid);boot()}else showLogin();
+Promise.race([connect(),new Promise(r=>setTimeout(r,9000))]).then(startApp);
 </script>
 </body>
 </html>
