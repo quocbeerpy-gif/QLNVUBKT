@@ -48,17 +48,7 @@ label.f{display:block;font-size:12px;font-weight:600;color:var(--muted);margin:0
 .field{margin-bottom:12px}
 .row{display:flex;gap:12px}.row>*{flex:1;min-width:0}
 /* login */
-#login{min-height:100vh;display:grid;grid-template-columns:1.1fr 1fr}
-.l-brand{background:linear-gradient(155deg,#0b2a4a,#0f4c81 60%,#1d6fb8);color:#fff;padding:56px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden}
-.l-brand:after{content:"";position:absolute;right:-120px;bottom:-120px;width:420px;height:420px;border-radius:50%;border:60px solid rgba(255,255,255,.06)}
-.l-brand h1{font-size:34px;max-width:480px;margin-top:20px}
-.l-brand p{opacity:.8;max-width:460px;font-size:15px}
-.l-feat{display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:480px}
-.l-feat div{background:rgba(255,255,255,.1);border-radius:10px;padding:10px 12px;font-size:13px}
 .logo{width:46px;height:46px;border-radius:12px;background:rgba(255,255,255,.18);display:grid;place-items:center;font-weight:800;font-size:18px}
-.l-form{display:flex;align-items:center;justify-content:center;padding:32px;background:var(--surface)}
-.l-box{width:100%;max-width:380px}
-.l-box h2{font-size:24px;margin-bottom:4px}
 .err{color:var(--over);font-size:13px;min-height:20px;margin:6px 0}
 .demo{margin-top:22px;border-top:1px dashed var(--line);padding-top:14px}
 .demo summary{cursor:pointer;color:var(--muted);font-size:13px;font-weight:600}
@@ -208,8 +198,6 @@ body{padding-bottom:env(safe-area-inset-bottom)}
 .cal{grid-template-columns:repeat(7,minmax(0,1fr))}
 .cal .d{cursor:pointer}.cal .d.sel{outline:2px solid var(--brand2);outline-offset:-2px}
 .evc{display:none;float:right;background:var(--c);color:#fff;border-radius:99px;font-size:11px;font-weight:700;min-width:20px;height:20px;line-height:20px;text-align:center;padding:0 5px}
-.l-mini{display:none;align-items:center;gap:10px;margin-bottom:22px}
-.l-mini .logo{background:var(--brand);color:#fff;width:40px;height:40px;font-size:15px}
 #sideMask{position:fixed;inset:0;background:rgba(8,17,31,.5);z-index:25}
 #ptitle{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 .top{padding-top:calc(14px + env(safe-area-inset-top))}
@@ -228,7 +216,7 @@ aside{padding-top:calc(18px + env(safe-area-inset-top));overflow-y:auto}
   aside.open{left:0;box-shadow:6px 0 30px rgba(0,0,0,.35)}
   #menuBtn{display:grid}
   .top{padding-left:14px;padding-right:14px}.page{padding:16px 14px 60px}
-  #login{grid-template-columns:1fr}.l-brand{display:none}.l-mini{display:flex}
+  
   .drop{right:8px;left:8px;width:auto}
 }
 @media (max-width:640px){
@@ -351,6 +339,77 @@ aside{padding-top:calc(18px + env(safe-area-inset-top));overflow-y:auto}
 .col.over{outline:2px dashed var(--neon);box-shadow:0 0 18px color-mix(in srgb,var(--neon) 55%,transparent)}
 input:focus,select:focus,textarea:focus{border-color:var(--neon);box-shadow:0 0 0 1px var(--neon),0 0 12px color-mix(in srgb,var(--neon) 55%,transparent)}
 @keyframes neon{0%,100%{filter:brightness(1)}50%{filter:brightness(1.18)}}
+
+/* ===== modern login ===== */
+#login{position:relative;min-height:100vh;min-height:100dvh;overflow:hidden;color:#fff;background:#070f1f;display:block}
+.lg-bg{position:absolute;inset:0;background:radial-gradient(1200px 700px at 15% 10%,#12408a 0%,transparent 60%),radial-gradient(900px 600px at 90% 90%,#5b21b6 0%,transparent 55%),linear-gradient(160deg,#08122a,#0b1f45 55%,#0a2a52)}
+.orb{position:absolute;border-radius:50%;filter:blur(70px);opacity:.55;animation:float 16s ease-in-out infinite}
+.o1{width:420px;height:420px;background:#22d3ee;left:-120px;top:8%}
+.o2{width:360px;height:360px;background:#6366f1;right:8%;top:-100px;animation-delay:-5s}
+.o3{width:320px;height:320px;background:#ec4899;right:-80px;bottom:-60px;animation-delay:-9s;opacity:.35}
+@keyframes float{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(40px,-30px) scale(1.08)}66%{transform:translate(-30px,40px) scale(.94)}}
+.gridl{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.045) 1px,transparent 1px);background-size:44px 44px;mask-image:radial-gradient(ellipse at center,#000 30%,transparent 75%);-webkit-mask-image:radial-gradient(ellipse at center,#000 30%,transparent 75%)}
+.lg-wrap{position:relative;z-index:1;min-height:100vh;min-height:100dvh;max-width:1180px;margin:0 auto;padding:32px 28px;display:grid;grid-template-columns:1.15fr 1fr;gap:56px;align-items:center}
+.lg-left{animation:rise .8s cubic-bezier(.2,.8,.2,1) both}
+.lg-brand{display:flex;align-items:center;gap:12px;font-weight:700;font-size:15px;opacity:.95;margin-bottom:34px}
+.lg-logo{background:linear-gradient(135deg,#22d3ee,#6366f1)!important;color:#fff;box-shadow:0 8px 24px rgba(99,102,241,.45),inset 0 1px 0 rgba(255,255,255,.4);letter-spacing:.5px}
+.lg-left h1{font-size:clamp(28px,3.6vw,46px);line-height:1.15;font-weight:800;letter-spacing:-.5px;background:linear-gradient(120deg,#fff 30%,#a5f3fc);-webkit-background-clip:text;background-clip:text;color:transparent;max-width:560px}
+.lg-left p{margin:16px 0 30px;color:rgba(226,236,255,.75);font-size:16px;max-width:520px;line-height:1.65}
+.l-feat{display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:520px}
+.l-feat div{padding:13px 15px;border-radius:14px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);font-size:13.5px;font-weight:600;transition:transform .25s,background .25s,border-color .25s}
+.l-feat div:hover{transform:translateY(-3px);background:rgba(255,255,255,.12);border-color:rgba(34,211,238,.55);box-shadow:0 0 18px rgba(34,211,238,.25)}
+.lg-card{position:relative;width:100%;max-width:430px;justify-self:center;padding:36px 34px 26px;border-radius:26px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.2);backdrop-filter:blur(26px) saturate(1.4);-webkit-backdrop-filter:blur(26px) saturate(1.4);box-shadow:0 30px 80px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.25);animation:rise .8s .12s cubic-bezier(.2,.8,.2,1) both}
+.lg-card::before{content:"";position:absolute;inset:-1px;border-radius:27px;padding:1.5px;background:conic-gradient(from var(--a,0deg),transparent 0 70%,#22d3ee,#6366f1,transparent);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none;animation:spinb 6s linear infinite}
+@property --a{syntax:"<angle>";inherits:false;initial-value:0deg}
+@keyframes spinb{to{--a:360deg}}
+@keyframes rise{from{opacity:0;transform:translateY(24px)}}
+.lg-card.shake{animation:shake .45s}
+@keyframes shake{20%,60%{transform:translateX(-9px)}40%,80%{transform:translateX(9px)}}
+.lg-hello{font-size:13px;color:#a5f3fc;font-weight:600}
+.lg-card h2{font-size:28px;margin:4px 0 4px;font-weight:800}
+.lg-sub{margin:0 0 24px;color:rgba(226,236,255,.65);font-size:14px}
+.l-mini{display:none;align-items:center;gap:10px;margin-bottom:20px}
+.lg-field{position:relative;margin-bottom:16px}
+.lg-field>svg.i{position:absolute;left:15px;top:50%;transform:translateY(-50%);width:19px;height:19px;color:rgba(226,236,255,.6);transition:color .2s;pointer-events:none}
+.lg-field input{width:100%;height:54px;padding:20px 46px 6px 46px;border-radius:14px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);color:#fff;font-size:15px;outline:none;transition:border-color .2s,box-shadow .2s,background .2s}
+.lg-field input:focus{background:rgba(255,255,255,.13);border-color:#22d3ee;box-shadow:0 0 0 3px rgba(34,211,238,.2),0 0 22px rgba(34,211,238,.28)}
+.lg-field:focus-within>svg.i{color:#22d3ee}
+.lg-field label{position:absolute;left:46px;top:50%;transform:translateY(-50%);color:rgba(226,236,255,.6);font-size:15px;pointer-events:none;transition:all .18s ease}
+.lg-field input:focus+label,.lg-field input:not(:placeholder-shown)+label{top:15px;font-size:11.5px;font-weight:600;color:#67e8f9;letter-spacing:.3px}
+.lg-field input:-webkit-autofill{-webkit-text-fill-color:#fff;box-shadow:0 0 0 60px #1b2c55 inset;caret-color:#fff}
+.lg-eye{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:38px;height:38px;border:0;border-radius:10px;background:transparent;color:rgba(226,236,255,.65);cursor:pointer;display:grid;place-items:center;transition:background .2s,color .2s}
+.lg-eye:hover{background:rgba(255,255,255,.12);color:#fff}
+.lg-rem{display:flex;align-items:center;gap:9px;font-size:13px;color:rgba(226,236,255,.75);cursor:pointer;margin:2px 0 6px;user-select:none}
+.lg-rem input{appearance:none;-webkit-appearance:none;width:18px;height:18px;border-radius:5px;border:1.5px solid rgba(255,255,255,.4);display:grid;place-items:center;cursor:pointer;transition:.15s;margin:0}
+.lg-rem input:checked{background:linear-gradient(135deg,#22d3ee,#6366f1);border-color:transparent;box-shadow:0 0 10px rgba(34,211,238,.6)}
+.lg-rem input:checked::after{content:"";width:5px;height:9px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg) translate(-1px,-1px)}
+#login .err{color:#fda4af;background:rgba(244,63,94,.12);border:1px solid rgba(244,63,94,.3);border-radius:10px;padding:0 12px;font-size:13px;min-height:0;max-height:0;opacity:0;overflow:hidden;margin:0;transition:all .25s}
+#login .err:not(:empty){max-height:60px;opacity:1;padding:8px 12px;margin:10px 0 4px}
+.lg-btn{position:relative;overflow:hidden;width:100%;height:54px;margin-top:14px;border:0;border-radius:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;color:#fff;font-size:16px;font-weight:700;letter-spacing:.2px;background:linear-gradient(120deg,#06b6d4,#4f46e5 60%,#7c3aed);background-size:200% 100%;box-shadow:0 10px 28px rgba(79,70,229,.5),0 0 0 1px rgba(255,255,255,.15) inset;transition:transform .2s,box-shadow .25s,background-position .5s}
+.lg-btn:hover{background-position:100% 0;transform:translateY(-2px);box-shadow:0 14px 34px rgba(79,70,229,.6),0 0 26px rgba(34,211,238,.45)}
+.lg-btn:active{transform:scale(.97)}
+.lg-btn svg.i{transition:transform .25s}.lg-btn:hover svg.i{transform:translateX(5px)}
+.lg-btn::after{content:"";position:absolute;inset:0;background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.35) 50%,transparent 65%);transform:translateX(-120%);transition:transform .7s}
+.lg-btn:hover::after{transform:translateX(120%)}
+.lg-btn .spin{display:none;width:20px;height:20px;border-radius:50%;border:3px solid rgba(255,255,255,.35);border-top-color:#fff;animation:sp .7s linear infinite}
+.lg-btn.load .t,.lg-btn.load svg.i{display:none}.lg-btn.load .spin{display:block}.lg-btn.load{pointer-events:none;filter:saturate(.8)}
+@keyframes sp{to{transform:rotate(360deg)}}
+#login .demo{margin-top:20px;border-top:1px solid rgba(255,255,255,.14);padding-top:14px}
+#login .demo summary{color:rgba(226,236,255,.7);font-size:13px;font-weight:600;cursor:pointer;list-style:none;display:flex;align-items:center;gap:6px}
+#login .demo summary::-webkit-details-marker{display:none}
+#login .demo summary::after{content:"▾";margin-left:auto;transition:transform .2s}
+#login .demo[open] summary::after{transform:rotate(180deg)}
+#login .chips{max-height:150px;overflow:auto;padding-right:2px}
+#login .chip{background:rgba(255,255,255,.1);color:#e0f2fe;border:1px solid rgba(255,255,255,.16)}
+#login .chip:hover{background:linear-gradient(120deg,#06b6d4,#4f46e5);color:#fff;border-color:transparent}
+.lg-foot{margin-top:16px;text-align:center;font-size:12px;color:rgba(226,236,255,.45)}
+@media (max-width:900px){
+  .lg-wrap{grid-template-columns:1fr;gap:0;padding:max(20px,env(safe-area-inset-top)) 18px max(20px,env(safe-area-inset-bottom));align-content:center}
+  .lg-left{display:none}.l-mini{display:flex}.l-mini b{font-size:15px}
+  .lg-card{max-width:460px;padding:28px 22px 20px;border-radius:22px}
+  .o1,.o2,.o3{opacity:.4}
+}
+@media (prefers-reduced-motion:reduce){.orb,.lg-card::before{animation:none!important}}
 @media print{aside,.top,.toolbar,.pagehead .btn,.no-print{display:none!important}#app{display:block}.page{padding:0}body{background:#fff}}
 </style>
 </head>
@@ -358,24 +417,29 @@ input:focus,select:focus,textarea:focus{border-color:var(--neon);box-shadow:0 0 
 
 <!-- LOGIN -->
 <section id="login" class="hide">
-  <div class="l-brand">
-    <div>
-      <div class="logo" id="lLogo">VH</div>
+  <div class="lg-bg"><i class="orb o1"></i><i class="orb o2"></i><i class="orb o3"></i><i class="gridl"></i></div>
+  <div class="lg-wrap">
+    <div class="lg-left">
+      <div class="lg-brand"><div class="logo lg-logo" id="lLogo">VH</div><span id="lOrg3"></span></div>
       <h1 id="lTitle"></h1>
       <p id="lDesc"></p>
+      <div class="l-feat" id="lFeat"></div>
     </div>
-<div class="l-feat" id="lFeat"></div>
-  </div>
-  <div class="l-form">
-    <form class="l-box" id="loginForm" autocomplete="off">
-      <div class="l-mini"><div class="logo" id="lLogo2">VH</div><b id="lOrg2"></b></div>
+    <form class="lg-card" id="loginForm" autocomplete="on" novalidate>
+      <div class="l-mini"><div class="logo lg-logo" id="lLogo2">VH</div><b id="lOrg2"></b></div>
+      <div class="lg-hello">Chào mừng trở lại 👋</div>
       <h2>Đăng nhập</h2>
-<div style="height:14px"></div>
-      <div class="field"><label class="f">Tên đăng nhập</label><input type="text" id="lu" placeholder="Nhập tên của bạn" autofocus></div>
-      <div class="field"><label class="f">Mật khẩu</label><input type="password" id="lp" placeholder="••••••"></div>
-      <div class="err" id="lerr"></div>
-      <button class="btn pri" style="width:100%;justify-content:center;padding:11px" type="submit">Đăng nhập</button>
+      <p class="lg-sub">Đăng nhập để quản lý và theo dõi nhiệm vụ</p>
+      <div class="lg-field"><svg class="i"><use href="#i-user"/></svg>
+        <input type="text" id="lu" name="username" placeholder=" " autocomplete="username" autocapitalize="none" spellcheck="false" autofocus><label for="lu">Tên đăng nhập</label></div>
+      <div class="lg-field"><svg class="i"><use href="#i-lock"/></svg>
+        <input type="password" id="lp" name="password" placeholder=" " autocomplete="current-password"><label for="lp">Mật khẩu</label>
+        <button type="button" class="lg-eye" data-act="pw" aria-label="Hiện/ẩn mật khẩu"><svg class="i"><use href="#i-eye"/></svg></button></div>
+      <label class="lg-rem"><input type="checkbox" id="lrem" checked><span>Ghi nhớ tên đăng nhập</span></label>
+      <div class="err" id="lerr" role="alert"></div>
+      <button class="lg-btn" id="lbtn" type="submit"><span class="t">Đăng nhập</span><svg class="i"><use href="#i-arrow"/></svg><i class="spin"></i></button>
       <details class="demo" id="demoBox"><summary>Danh sách tài khoản</summary><div class="chips" id="demoChips"></div></details>
+      <div class="lg-foot">© <span id="lYear"></span> · <span id="lOrg4"></span></div>
     </form>
   </div>
 </section>
@@ -422,6 +486,11 @@ input:focus,select:focus,textarea:focus{border-color:var(--neon);box-shadow:0 0 
 <symbol id="i-kan" viewBox="0 0 24 24"><rect x="3" y="3" width="5" height="18"/><rect x="10" y="3" width="5" height="12"/><rect x="17" y="3" width="4" height="8"/></symbol>
 <symbol id="i-dl" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></symbol>
 <symbol id="i-menu" viewBox="0 0 24 24"><path d="M3 12h18M3 6h18M3 18h18"/></symbol>
+<symbol id="i-user" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
+<symbol id="i-lock" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
+<symbol id="i-eye" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></symbol>
+<symbol id="i-eyeoff" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19M1 1l22 22"/></symbol>
+<symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
 <symbol id="i-org" viewBox="0 0 24 24"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 9h.01M15 9h.01M9 13h.01M15 13h.01M10 21v-4h4v4"/></symbol>
 </defs></svg>
 
@@ -686,19 +755,31 @@ function findUser(input){
 }
 function login(e){
   e.preventDefault();
-  const r=findUser($("#lu").value);
-  if(r.err)return $("#lerr").textContent=r.err;
-  if(!r.u.active)return $("#lerr").textContent="Tài khoản đã bị khóa";
-  if(r.u.pass!==hash($("#lp").value))return $("#lerr").textContent="Sai mật khẩu";
-  S.me=r.u;localStorage.setItem(SKEY,r.u.id);
-  log("Đăng nhập hệ thống");save();S.route=location.hash.slice(1)||"dashboard";boot();
+  const btn=$("#lbtn"),card=$("#loginForm"),err=$("#lerr");
+  const fail=m=>{btn.classList.remove("load");err.textContent=m;card.classList.remove("shake");void card.offsetWidth;card.classList.add("shake")};
+  err.textContent="";btn.classList.add("load");
+  setTimeout(()=>{
+    const r=findUser($("#lu").value);
+    if(r.err)return fail(r.err);
+    if(!r.u.active)return fail("Tài khoản đã bị khóa");
+    if(r.u.pass!==hash($("#lp").value))return fail("Sai mật khẩu, vui lòng thử lại");
+    try{if($("#lrem").checked)localStorage.setItem("pvhx_lastuser",$("#lu").value.trim());else localStorage.removeItem("pvhx_lastuser")}catch(x){}
+    S.me=r.u;localStorage.setItem(SKEY,r.u.id);btn.classList.remove("load");
+    log("Đăng nhập hệ thống");save();S.route=location.hash.slice(1)||"dashboard";boot();
+  },350);
 }
 function logout(){log("Đăng xuất");save();localStorage.removeItem(SKEY);S.me=null;location.hash="";showLogin()}
+function fillChips(){
+  $("#demoBox").classList.toggle("hide",!DB.settings.showAccounts);
+  $("#demoChips").innerHTML=DB.users.filter(u=>u.role!=="admin").map(u=>`<button type="button" class="chip" data-act="fill" data-u="${esc(u.username)}">${esc(shortName(u.name))} · ${esc(u.username)}</button>`).join("");
+}
 function showLogin(){
   $("#app").classList.add("hide");$("#login").classList.remove("hide");
-  $("#demoBox").classList.toggle("hide",!DB.settings.showAccounts);applySettings();
-  $("#demoChips").innerHTML=DB.users.filter(u=>u.role!=="admin").map(u=>`<button type="button" class="chip" data-act="fill" data-u="${esc(u.username)}">${esc(shortName(u.name))} · ${esc(u.username)}</button>`).join("");
-  $("#lp").value="";$("#lerr").textContent="";
+  applySettings();fillChips();
+  $("#lp").value="";$("#lerr").textContent="";$("#lbtn").classList.remove("load");
+  try{const u=localStorage.getItem("pvhx_lastuser");if(u&&!$("#lu").value)$("#lu").value=u}catch(x){}
+  $("#lYear").textContent=new Date().getFullYear();
+  setTimeout(()=>{const f=$("#lu").value?$("#lp"):$("#lu");try{f.focus({preventScroll:true})}catch(x){}},50);
 }
 
 /* ============ NAV / ROUTER ============ */
@@ -714,7 +795,7 @@ const TITLES={dashboard:"Tổng quan",tasks:"Nhiệm vụ",calendar:"Lịch côn
 function applySettings(){
   const c=DB.settings;document.title=c.appName+" – "+c.orgName;
   const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};
-  set("sOrg",c.orgName);set("sApp",c.appName);set("sLogo",c.logo);set("lLogo2",c.logo);set("lOrg2",c.orgName);set("lLogo2",c.logo);set("lOrg2",c.orgName);set("lLogo",c.logo);set("lTitle",c.loginTitle);set("lDesc",c.loginDesc);
+  set("sOrg",c.orgName);set("sApp",c.appName);set("sLogo",c.logo);set("lLogo2",c.logo);set("lOrg2",c.orgName);set("lOrg3",c.orgName);set("lOrg4",c.orgName);set("lLogo",c.logo);set("lTitle",c.loginTitle);set("lDesc",c.loginDesc);
   const f=document.getElementById("lFeat");if(f)f.innerHTML=c.feats.filter(Boolean).map(x=>`<div>${esc(x)}</div>`).join("");
 }
 function renderShell(){applySettings();
@@ -1112,6 +1193,7 @@ document.addEventListener("click",e=>{
   const a=el.dataset.act,d=el.dataset,id=d.id;
   switch(a){
     case"fill":$("#lu").value=d.u;$("#lp").value=DEFAULT_PW;$("#lp").focus();break;
+    case"pw":{const i=$("#lp"),h=i.type==="password";i.type=h?"text":"password";el.querySelector("use").setAttribute("href",h?"#i-eyeoff":"#i-eye");i.focus();break}
     case"logout":logout();break;
     case"menu":{const o=$("#side").classList.toggle("open");$("#sideMask").classList.toggle("hide",!o);break}
     case"go":e.preventDefault();go(d.r);break;
@@ -1214,7 +1296,7 @@ function afterRemote(c){
     if(S.me){const n=U(S.me.id);if(!n||!n.active){S.me=null;localStorage.removeItem(SKEY);showLogin();return}S.me=n}
   }
   saveLocal();
-  if(!$("#login").classList.contains("hide")){applySettings();$("#demoBox").classList.toggle("hide",!DB.settings.showAccounts);$("#demoChips").innerHTML=DB.users.filter(u=>u.role!=="admin").map(u=>`<button type="button" class="chip" data-act="fill" data-u="${esc(u.username)}">${esc(shortName(u.name))} · ${esc(u.username)}</button>`).join("");return}
+  if(!$("#login").classList.contains("hide")){applySettings();fillChips();return}
   if(!S.me)return;
   if($("#modalRoot").innerHTML){S.dirty=true;return}
   const ae=document.activeElement;if(ae&&ae.closest&&ae.closest("#page")&&/INPUT|TEXTAREA|SELECT/.test(ae.tagName)&&ae.id!=="fq")return;
